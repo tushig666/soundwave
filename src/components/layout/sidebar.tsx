@@ -140,30 +140,17 @@ export function AppSidebar() {
             </SidebarMenuItem>
 
           {!user ? (
-            <>
-              <SidebarMenuItem>
-                <Link href="/signup">
-                  <SidebarMenuButton
-                    isActive={pathname === '/signup'}
-                    tooltip="Sign Up"
-                  >
-                    <UserPlus />
-                    <span>Sign Up</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link href="/login">
-                  <SidebarMenuButton
-                    isActive={pathname === '/login'}
-                    tooltip="Login"
-                  >
-                    <LogIn />
-                    <span>Login</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            </>
+            <SidebarMenuItem>
+              <Link href="/login">
+                <SidebarMenuButton
+                  isActive={pathname === '/login'}
+                  tooltip="Login"
+                >
+                  <LogIn />
+                  <span>Login</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
           ) : (
             authenticatedMenuItems.map((item) => (
               <SidebarMenuItem key={item.label}>
