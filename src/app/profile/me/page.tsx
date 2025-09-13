@@ -1,18 +1,22 @@
+
+'use client';
+
 import Image from 'next/image';
-import { mockSongs, mockUsers } from '@/lib/data';
+import { useSongStore } from '@/lib/store';
 import { SongCard } from '@/components/song-card';
 import { Button } from '@/components/ui/button';
 import { User, Edit } from 'lucide-react';
 
-// For this demo, we'll just grab the first user as the "logged in" user.
-const currentUser = mockUsers.find(u => u.artistId === 'a4');
-
-// Find songs uploaded by the current user
-const userSongs = mockSongs.filter(
-  (song) => song.artistId === currentUser?.artistId
-);
-
 export default function ProfilePage() {
+  const { users, songs } = useSongStore();
+  // For this demo, we'll just grab the first user as the "logged in" user.
+  const currentUser = users.find((u) => u.artistId === 'a4');
+
+  // Find songs uploaded by the current user
+  const userSongs = songs.filter(
+    (song) => song.artistId === currentUser?.artistId
+  );
+
   if (!currentUser) {
     return (
       <div className="flex h-full items-center justify-center p-4 md:p-6">

@@ -1,6 +1,8 @@
+
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,11 +17,20 @@ import {
 import { Label } from '@/components/ui/label';
 import { UploadCloud, Loader2, Music, FileAudio } from 'lucide-react';
 import Image from 'next/image';
+import { useSongStore } from '@/lib/store';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useToast } from '@/hooks/use-toast';
 
 export default function UploadPage() {
+  const router = useRouter();
+  const { toast } = useToast();
+  const { addSong, users } = useSongStore();
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [audioFileName, setAudioFileName] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // We'll use the "logged in" user to associate the upload.
+  const currentUser = users.find(u => u.artistId === 'a4');
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,12 +52,52 @@ export default function UploadPage() {
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!currentUser) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to upload a song.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsUploading(true);
+    
+    const formData = new FormData(e.currentTarget);
+    const title = formData.get('title') as string;
+    const genre = formData.get('genre') as string;
+    const description = formData.get('description') as string;
+    
+    // In a real app, we'd upload the files to a storage service
+    // and get back URLs. For now, we'll use placeholders.
+    const randomCover = PlaceHolderImages[Math.floor(Math.random() * PlaceHolderImages.length)];
+    
+    const newSong = {
+      id: `song-${Date.now()}`,
+      title,
+      artist: currentUser.name,
+      artistId: currentUser.artistId,
+      coverUrl: coverPreview || randomCover.imageUrl,
+      // Using a placeholder audio file that is present in /public/audio
+      audioUrl: '/audio/midnight-drive.mp3', 
+      genre,
+      description,
+      likes: 0,
+    };
+
     // Mock upload delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    addSong(newSong);
     setIsUploading(false);
-    // Here you would handle the actual upload logic
-    alert('Song submitted for review!');
+    
+    toast({
+      title: 'Success!',
+      description: `"${title}" has been uploaded.`,
+    });
+    
+    // Redirect to profile page to see the new song
+    router.push('/profile/me');
   };
 
 

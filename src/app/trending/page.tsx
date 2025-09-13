@@ -1,11 +1,14 @@
 
+'use client';
+
 import { SongCard } from '@/components/song-card';
-import { mockSongs } from '@/lib/data';
+import { useSongStore } from '@/lib/store';
 import { TrendingUp } from 'lucide-react';
 
 export default function TrendingPage() {
+  const songs = useSongStore((state) => state.songs);
   // Sort songs by likes in descending order to determine what's trending
-  const trendingSongs = [...mockSongs].sort((a, b) => b.likes - a.likes);
+  const trendingSongs = [...songs].sort((a, b) => b.likes - a.likes);
 
   return (
     <div className="p-4 md:p-6">
