@@ -6,7 +6,6 @@ import {
   Music,
   User,
   Search,
-  Library,
   PlusCircle,
   Heart,
   UploadCloud,
@@ -15,6 +14,7 @@ import {
   LogOut,
   UserPlus,
   Loader2,
+  KeyRound,
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -122,6 +122,8 @@ export function AppSidebar() {
     }
 
     if (!user) {
+      // This part should not be reached if the layout logic is correct
+      // But as a fallback, we can show a login button.
       return (
         <SidebarMenuItem>
           <Link href="/login">

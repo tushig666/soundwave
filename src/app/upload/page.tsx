@@ -25,6 +25,7 @@ import { storage, db } from '@/lib/firebase/client';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { UploadProgressIndicator } from '@/components/upload-progress-indicator';
+import { AppLayout } from '@/components/layout/app-layout';
 
 
 export default function UploadPage() {
@@ -110,17 +111,12 @@ export default function UploadPage() {
       const genre = formData.get('genre') as string;
       const description = formData.get('description') as string;
       
-      // Use a consistent file name for simplicity, or generate a unique one.
-      // The path must match the Storage Security Rules.
       const coverPath = `covers/${user.uid}/${coverFile.name}`;
       const audioPath = `audio/${user.uid}/${audioFile.name}`;
       
-      // We'll give 50% of the progress to each file
       const coverUrl = await uploadFile(coverFile, coverPath, 0, 50);
       const audioUrl = await uploadFile(audioFile, audioPath, 50, 50);
 
-
-      // 2. Create song document in Firestore
       const newSongDoc = {
         title,
         artist: user.displayName || 'Anonymous',
@@ -158,134 +154,136 @@ export default function UploadPage() {
 
   return (
      <AuthRequired>
-      <div className="p-4 md:p-6">
-        <div className="mb-6 flex items-center gap-4">
-          <UploadCloud className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Upload Your Music</h1>
-        </div>
-        <p className="mb-8 max-w-2xl text-muted-foreground">
-          Share your sound with the world. Fill out the form below to upload your track.
-        </p>
+        <AppLayout>
+            <div className="p-4 md:p-6">
+                <div className="mb-6 flex items-center gap-4">
+                <UploadCloud className="h-8 w-8 text-primary" />
+                <h1 className="text-3xl font-bold">Upload Your Music</h1>
+                </div>
+                <p className="mb-8 max-w-2xl text-muted-foreground">
+                Share your sound with the world. Fill out the form below to upload your track.
+                </p>
 
-        <Card className="max-w-2xl">
-          {isUploading ? (
-              <CardContent className="flex items-center justify-center p-12">
-                 <UploadProgressIndicator progress={uploadProgress} />
-              </CardContent>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <CardHeader>
-                <CardTitle>Track Details</CardTitle>
-                <CardDescription>
-                  Provide information about your song.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Song Title</Label>
-                  <Input id="title" name="title" placeholder="e.g., My Awesome Track" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="genre">Genre</Label>
-                  <Input id="genre" name="genre" placeholder="e.g., Pop, Rock, Lofi" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    placeholder="Tell us a little about your song."
-                    rows={3}
-                  />
-                </div>
-                <div className="flex items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="public-status" className="flex items-center gap-2 text-base">
-                      {isPublic ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-                      {isPublic ? 'Public' : 'Private'}
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      {isPublic
-                        ? 'This song will be visible to everyone.'
-                        : 'Only you can see this song.'}
-                    </p>
-                  </div>
-                  <Switch
-                    id="public-status"
-                    name="isPublic"
-                    checked={isPublic}
-                    onCheckedChange={setIsPublic}
-                  />
-                </div>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="cover">Cover Art</Label>
-                    <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 dark:border-gray-100/25">
-                        <div className="text-center">
-                            {coverPreview ? (
-                              <Image src={coverPreview} alt="Cover preview" width={128} height={128} className="mx-auto h-32 w-32 object-cover rounded-md" />
-                            ) : (
-                                <Music className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-500" aria-hidden="true" />
-                            )}
-                            <div className="mt-4 flex text-sm leading-6 text-gray-600 dark:text-gray-400">
-                                <label
-                                    htmlFor="cover"
-                                    className="relative cursor-pointer rounded-md bg-white dark:bg-gray-900 font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 hover:text-primary-dark"
-                                >
-                                    <span>Upload a file</span>
-                                    <input id="cover" name="cover" type="file" className="sr-only" accept="image/*" onChange={handleCoverChange} required/>
-                                </label>
-                                <p className="pl-1">or drag and drop</p>
-                            </div>
-                            <p className="text-xs leading-5 text-gray-600 dark:text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                <Card className="max-w-2xl">
+                {isUploading ? (
+                    <CardContent className="flex items-center justify-center p-12">
+                        <UploadProgressIndicator progress={uploadProgress} />
+                    </CardContent>
+                ) : (
+                    <form onSubmit={handleSubmit}>
+                    <CardHeader>
+                        <CardTitle>Track Details</CardTitle>
+                        <CardDescription>
+                        Provide information about your song.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-2">
+                        <Label htmlFor="title">Song Title</Label>
+                        <Input id="title" name="title" placeholder="e.g., My Awesome Track" required />
                         </div>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="audio">Audio File</Label>
-                    <div className="mt-2 flex h-full flex-col items-center justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 dark:border-gray-100/25">
-                        {audioFileName ? (
-                          <div className="text-center">
-                            <FileAudio className="mx-auto h-12 w-12 text-primary" />
-                            <p className="mt-4 text-sm font-medium text-foreground">{audioFileName}</p>
-                            <label
-                                  htmlFor="audio"
-                                  className="relative mt-2 cursor-pointer text-xs text-primary hover:underline"
-                                >
-                                  <span>Change file</span>
-                                  <input id="audio" name="audio" type="file" className="sr-only" accept="audio/*" onChange={handleAudioChange} />
-                                </label>
-                          </div>
-                        ) : (
-                          <div className="text-center">
-                              <Music className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-500" aria-hidden="true" />
-                              <div className="mt-4 flex text-sm leading-6 text-gray-600 dark:text-gray-400">
-                                  <label
-                                      htmlFor="audio"
-                                      className="relative cursor-pointer rounded-md bg-white dark:bg-gray-900 font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 hover:text-primary-dark"
-                                  >
-                                      <span>Upload a file</span>
-                                      <input id="audio" name="audio" type="file" className="sr-only" accept="audio/*" onChange={handleAudioChange} required />
-                                  </label>
-                                  <p className="pl-1">or drag and drop</p>
-                              </div>
-                              <p className="text-xs leading-5 text-gray-600 dark:text-gray-500">MP3, WAV, FLAC up to 20MB</p>
-                          </div>
-                        )}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" disabled={isUploading}>
-                  <UploadCloud className="mr-2 h-4 w-4" />
-                  Upload Song
-                </Button>
-              </CardFooter>
-            </form>
-          )}
-        </Card>
-      </div>
+                        <div className="space-y-2">
+                        <Label htmlFor="genre">Genre</Label>
+                        <Input id="genre" name="genre" placeholder="e.g., Pop, Rock, Lofi" />
+                        </div>
+                        <div className="space-y-2">
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                            id="description"
+                            name="description"
+                            placeholder="Tell us a little about your song."
+                            rows={3}
+                        />
+                        </div>
+                        <div className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                            <Label htmlFor="public-status" className="flex items-center gap-2 text-base">
+                            {isPublic ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                            {isPublic ? 'Public' : 'Private'}
+                            </Label>
+                            <p className="text-sm text-muted-foreground">
+                            {isPublic
+                                ? 'This song will be visible to everyone.'
+                                : 'Only you can see this song.'}
+                            </p>
+                        </div>
+                        <Switch
+                            id="public-status"
+                            name="isPublic"
+                            checked={isPublic}
+                            onCheckedChange={setIsPublic}
+                        />
+                        </div>
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <Label htmlFor="cover">Cover Art</Label>
+                            <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 dark:border-gray-100/25">
+                                <div className="text-center">
+                                    {coverPreview ? (
+                                    <Image src={coverPreview} alt="Cover preview" width={128} height={128} className="mx-auto h-32 w-32 object-cover rounded-md" />
+                                    ) : (
+                                        <Music className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-500" aria-hidden="true" />
+                                    )}
+                                    <div className="mt-4 flex text-sm leading-6 text-gray-600 dark:text-gray-400">
+                                        <label
+                                            htmlFor="cover"
+                                            className="relative cursor-pointer rounded-md bg-white dark:bg-gray-900 font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 hover:text-primary-dark"
+                                        >
+                                            <span>Upload a file</span>
+                                            <input id="cover" name="cover" type="file" className="sr-only" accept="image/*" onChange={handleCoverChange} required/>
+                                        </label>
+                                        <p className="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p className="text-xs leading-5 text-gray-600 dark:text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="audio">Audio File</Label>
+                            <div className="mt-2 flex h-full flex-col items-center justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 dark:border-gray-100/25">
+                                {audioFileName ? (
+                                <div className="text-center">
+                                    <FileAudio className="mx-auto h-12 w-12 text-primary" />
+                                    <p className="mt-4 text-sm font-medium text-foreground">{audioFileName}</p>
+                                    <label
+                                        htmlFor="audio"
+                                        className="relative mt-2 cursor-pointer text-xs text-primary hover:underline"
+                                        >
+                                        <span>Change file</span>
+                                        <input id="audio" name="audio" type="file" className="sr-only" accept="audio/*" onChange={handleAudioChange} />
+                                        </label>
+                                </div>
+                                ) : (
+                                <div className="text-center">
+                                    <Music className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-500" aria-hidden="true" />
+                                    <div className="mt-4 flex text-sm leading-6 text-gray-600 dark:text-gray-400">
+                                        <label
+                                            htmlFor="audio"
+                                            className="relative cursor-pointer rounded-md bg-white dark:bg-gray-900 font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 hover:text-primary-dark"
+                                        >
+                                            <span>Upload a file</span>
+                                            <input id="audio" name="audio" type="file" className="sr-only" accept="audio/*" onChange={handleAudioChange} required />
+                                        </label>
+                                        <p className="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p className="text-xs leading-5 text-gray-600 dark:text-gray-500">MP3, WAV, FLAC up to 20MB</p>
+                                </div>
+                                )}
+                            </div>
+                        </div>
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <Button type="submit" disabled={isUploading}>
+                        <UploadCloud className="mr-2 h-4 w-4" />
+                        Upload Song
+                        </Button>
+                    </CardFooter>
+                    </form>
+                )}
+                </Card>
+            </div>
+        </AppLayout>
     </AuthRequired>
   );
 }

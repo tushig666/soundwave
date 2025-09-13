@@ -22,6 +22,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { storage, auth } from '@/lib/firebase/client';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
+import { AppLayout } from '@/components/layout/app-layout';
 
 export default function EditProfilePage() {
   const { user, loading } = useAuth();
@@ -97,66 +98,68 @@ export default function EditProfilePage() {
 
   return (
      <AuthRequired>
-      <div className="p-4 md:p-6">
-        <Button variant="ghost" onClick={() => router.back()} className="mb-4">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Profile
-        </Button>
-        <div className="mb-6 flex items-center gap-4">
-          <Edit className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Edit Your Profile</h1>
-        </div>
-
-        <Card className="max-w-2xl">
-          <form onSubmit={handleSubmit}>
-            <CardHeader>
-              <CardTitle>Profile Details</CardTitle>
-              <CardDescription>
-                Update your display name and profile picture.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="displayName">Display Name</Label>
-                <Input 
-                  id="displayName" 
-                  name="displayName" 
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Your display name" 
-                  required 
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Profile Picture</Label>
-                <div className="mt-2 flex items-center gap-x-3">
-                    {photoPreview ? (
-                        <Image src={photoPreview} alt="Profile preview" width={96} height={96} className="h-24 w-24 rounded-full object-cover" />
-                    ) : (
-                        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
-                            <User className="h-12 w-12 text-muted-foreground" />
-                        </div>
-                    )}
-                    <label htmlFor="photo-upload" className="cursor-pointer rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-secondary-foreground shadow-sm hover:bg-secondary/80">
-                        <Camera className="mr-2 h-4 w-4 inline"/>
-                        <span>Change</span>
-                        <input id="photo-upload" name="photo-upload" type="file" className="sr-only" accept="image/*" onChange={handlePhotoChange} />
-                    </label>
+        <AppLayout>
+            <div className="p-4 md:p-6">
+                <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Profile
+                </Button>
+                <div className="mb-6 flex items-center gap-4">
+                <Edit className="h-8 w-8 text-primary" />
+                <h1 className="text-3xl font-bold">Edit Your Profile</h1>
                 </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" disabled={isSaving}>
-                {isSaving ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : null}
-                Save Changes
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
+
+                <Card className="max-w-2xl">
+                <form onSubmit={handleSubmit}>
+                    <CardHeader>
+                    <CardTitle>Profile Details</CardTitle>
+                    <CardDescription>
+                        Update your display name and profile picture.
+                    </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="displayName">Display Name</Label>
+                        <Input 
+                        id="displayName" 
+                        name="displayName" 
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder="Your display name" 
+                        required 
+                        />
+                    </div>
+                    
+                    <div className="space-y-2">
+                        <Label>Profile Picture</Label>
+                        <div className="mt-2 flex items-center gap-x-3">
+                            {photoPreview ? (
+                                <Image src={photoPreview} alt="Profile preview" width={96} height={96} className="h-24 w-24 rounded-full object-cover" />
+                            ) : (
+                                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
+                                    <User className="h-12 w-12 text-muted-foreground" />
+                                </div>
+                            )}
+                            <label htmlFor="photo-upload" className="cursor-pointer rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-secondary-foreground shadow-sm hover:bg-secondary/80">
+                                <Camera className="mr-2 h-4 w-4 inline"/>
+                                <span>Change</span>
+                                <input id="photo-upload" name="photo-upload" type="file" className="sr-only" accept="image/*" onChange={handlePhotoChange} />
+                            </label>
+                        </div>
+                    </div>
+                    </CardContent>
+                    <CardFooter>
+                    <Button type="submit" disabled={isSaving}>
+                        {isSaving ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : null}
+                        Save Changes
+                    </Button>
+                    </CardFooter>
+                </form>
+                </Card>
+            </div>
+        </AppLayout>
     </AuthRequired>
   );
 }

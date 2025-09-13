@@ -1,9 +1,9 @@
 
 import type { Metadata } from 'next';
 import './globals.css';
-import { AppLayout } from '@/components/layout/app-layout';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/use-auth';
+import { PlayerProvider } from '@/hooks/use-player';
 
 export const metadata: Metadata = {
   title: 'SoundWave',
@@ -31,8 +31,10 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AuthProvider>
-          <AppLayout>{children}</AppLayout>
-          <Toaster />
+          <PlayerProvider>
+            {children}
+            <Toaster />
+          </PlayerProvider>
         </AuthProvider>
       </body>
     </html>

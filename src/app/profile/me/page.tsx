@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { auth } from '@/lib/firebase/client';
+import { AppLayout } from '@/components/layout/app-layout';
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
@@ -25,6 +26,7 @@ export default function ProfilePage() {
     if (user?.uid) {
       fetchSongs(user.uid);
     } else {
+      // This case should ideally not happen if AuthRequired works correctly
       fetchSongs();
     }
   }, [fetchSongs, user?.uid]);
@@ -35,44 +37,17 @@ export default function ProfilePage() {
     router.push('/login');
   };
 
-  if (authLoading || !user) {
-    return (
-       <div className="p-4 md:p-6">
-        <header className="mb-8 flex flex-col items-center gap-6 md:flex-row">
-            <Skeleton className="relative h-32 w-32 shrink-0 rounded-full md:h-40 md:w-40" />
-            <div className="flex flex-col items-center gap-2 text-center md:items-start md:text-left">
-               <Skeleton className="h-10 w-48" />
-               <Skeleton className="h-5 w-64" />
-               <Skeleton className="h-5 w-72" />
-               <Skeleton className="mt-2 h-9 w-32" />
-            </div>
-        </header>
-         <section>
-            <h2 className="mb-4 text-2xl font-semibold">My Uploads</h2>
-             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                 {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="space-y-2">
-                        <Skeleton className="aspect-square w-full" />
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-4 w-1/2" />
-                    </div>
-                ))}
-            </div>
-        </section>
-      </div>
-    )
-  }
-  
-  const userSongs = songs.filter(
+  const userSongs = user ? songs.filter(
     (song) => song.artistId === user.uid
-  );
+  ) : [];
   
-  const displayName = user.displayName || 'User';
-  const profilePic = user.photoURL;
+  const displayName = user?.displayName || 'User';
+  const profilePic = user?.photoURL;
 
 
   return (
     <AuthRequired>
+      <AppLayout>
         <div className="p-4 md:p-6">
         <header className="relative mb-8 flex flex-col items-center gap-6 md:flex-row">
             <div className="relative h-32 w-32 shrink-0 md:h-40 md:w-40">
@@ -95,7 +70,7 @@ export default function ProfilePage() {
                 <User className="h-6 w-6 text-primary" />
                 <h1 className="text-4xl font-bold">{displayName}</h1>
             </div>
-             <p className="max-w-md text-muted-foreground">{user.email}</p>
+             <p className="max-w-md text-muted-foreground">{user?.email}</p>
              <p className="max-w-md text-muted-foreground">Welcome to your profile. View your uploaded songs below.</p>
             <div className="mt-2">
               <Link href="/profile/edit">
@@ -131,6 +106,7 @@ export default function ProfilePage() {
             )}
         </section>
         </div>
+      </AppLayout>
     </AuthRequired>
   );
 }

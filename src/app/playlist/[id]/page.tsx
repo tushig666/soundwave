@@ -24,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useToast } from '@/hooks/use-toast';
+import { AppLayout } from '@/components/layout/app-layout';
 
 function PlaylistHeaderSkeleton() {
   return (
@@ -102,62 +103,63 @@ export default function PlaylistPage() {
 
   return (
     <AuthRequired>
-      <div className="p-4 md:p-6">
-        <Button variant="ghost" onClick={() => router.back()} className="mb-4">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-        </Button>
-        {isLoading ? (
-          <>
-            <PlaylistHeaderSkeleton />
-            <SongGridSkeleton />
-          </>
-        ) : !playlist ? (
-          <div className="text-center">Playlist not found.</div>
-        ) : (
-          <>
-            <header className="mb-8 flex flex-col items-center gap-6 md:flex-row">
-                <div className="relative flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-muted shadow-lg md:h-48 md:w-48">
-                    <ListMusic className="h-16 w-16 text-muted-foreground" />
-                </div>
-                <div className="flex flex-col items-center gap-2 text-center md:items-start md:text-left">
-                <h1 className="text-4xl font-bold">{playlist.name}</h1>
-                 <p className="max-w-md text-muted-foreground">
-                    Created by you &bull; {playlist.songs?.length || 0} songs
-                 </p>
-                 {playlist.description && (
-                    <p className="max-w-md text-sm text-muted-foreground">{playlist.description}</p>
-                 )}
-                </div>
-            </header>
-            
-            <section>
-                {playlist.songs && playlist.songs.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                    {playlist.songs.map((song) => (
-                      <SongCard 
-                        key={song.id} 
-                        song={song} 
-                        playlist={playlist.songs!} 
-                        onRemoveFromPlaylist={handleRemoveSong}
-                        playlistId={playlist.id}
-                      />
-                    ))}
+      <AppLayout>
+        <div className="p-4 md:p-6">
+          <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+          </Button>
+          {isLoading ? (
+            <>
+              <PlaylistHeaderSkeleton />
+              <SongGridSkeleton />
+            </>
+          ) : !playlist ? (
+            <div className="text-center">Playlist not found.</div>
+          ) : (
+            <>
+              <header className="mb-8 flex flex-col items-center gap-6 md:flex-row">
+                  <div className="relative flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-muted shadow-lg md:h-48 md:w-48">
+                      <ListMusic className="h-16 w-16 text-muted-foreground" />
                   </div>
-                ) : (
-                    <div className="flex h-48 flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-8 text-center text-muted-foreground">
-                        <Music className="h-12 w-12" />
-                        <h2 className="mt-4 text-xl font-semibold">This playlist is empty</h2>
-                        <p className="mt-2 text-sm">
-                            Find some songs to add to your playlist!
-                        </p>
+                  <div className="flex flex-col items-center gap-2 text-center md:items-start md:text-left">
+                  <h1 className="text-4xl font-bold">{playlist.name}</h1>
+                  <p className="max-w-md text-muted-foreground">
+                      Created by you &bull; {playlist.songs?.length || 0} songs
+                  </p>
+                  {playlist.description && (
+                      <p className="max-w-md text-sm text-muted-foreground">{playlist.description}</p>
+                  )}
+                  </div>
+              </header>
+              
+              <section>
+                  {playlist.songs && playlist.songs.length > 0 ? (
+                      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                      {playlist.songs.map((song) => (
+                        <SongCard 
+                          key={song.id} 
+                          song={song} 
+                          playlist={playlist.songs!} 
+                          onRemoveFromPlaylist={handleRemoveSong}
+                          playlistId={playlist.id}
+                        />
+                      ))}
                     </div>
-                )}
-            </section>
-          </>
-        )}
-      </div>
+                  ) : (
+                      <div className="flex h-48 flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-8 text-center text-muted-foreground">
+                          <Music className="h-12 w-12" />
+                          <h2 className="mt-4 text-xl font-semibold">This playlist is empty</h2>
+                          <p className="mt-2 text-sm">
+                              Find some songs to add to your playlist!
+                          </p>
+                      </div>
+                  )}
+              </section>
+            </>
+          )}
+        </div>
+      </AppLayout>
     </AuthRequired>
   );
 }
-

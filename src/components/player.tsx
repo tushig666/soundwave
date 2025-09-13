@@ -10,6 +10,7 @@ import {
   Shuffle,
   Repeat,
   VolumeX,
+  Volume1,
   Heart,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -22,6 +23,16 @@ import type { Song } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
+
+function VolumeIcon({ volume, isMuted }: { volume: number, isMuted: boolean }) {
+  if (isMuted || volume === 0) {
+    return <VolumeX className="h-5 w-5" />;
+  }
+  if (volume < 0.5) {
+    return <Volume1 className="h-5 w-5" />;
+  }
+  return <Volume2 className="h-5 w-5" />;
+}
 
 export function Player() {
   const {
@@ -47,6 +58,8 @@ export function Player() {
     if (activeSong) {
       const details = songs.find((s) => s.id === activeSong.id);
       setCurrentSongDetails(details);
+    } else {
+      setCurrentSongDetails(undefined);
     }
   }, [activeSong, songs]);
 
@@ -64,11 +77,7 @@ export function Player() {
   };
 
   if (!activeSong) {
-    return (
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex h-24 items-center justify-center border-t border-border bg-card px-4">
-        <p className="text-muted-foreground">No song selected</p>
-      </div>
-    );
+    return null; // Don't render the player if no song is active
   }
 
   return (
@@ -151,11 +160,7 @@ export function Player() {
 
       <div className="flex w-1/4 items-center justify-end gap-2">
         <Button variant="ghost" size="icon" onClick={toggleMute}>
-          {isMuted || volume === 0 ? (
-            <VolumeX className="h-5 w-5" />
-          ) : (
-            <Volume2 className="h-5 w-5" />
-          )}
+          <VolumeIcon volume={volume} isMuted={isMuted} />
         </Button>
         <Slider
           value={[isMuted ? 0 : volume]}
@@ -170,6 +175,7 @@ export function Player() {
 }
 
 function formatTime(seconds: number): string {
+  if (isNaN(seconds) || seconds < 0) return '0:00';
   const minutes = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${minutes}:${secs.toString().padStart(2, '0')}`;
