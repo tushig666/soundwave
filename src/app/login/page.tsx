@@ -21,9 +21,10 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, LogIn, Music } from 'lucide-react';
+import { Loader2, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase/client';
+import { SoundWaveLogo } from '@/components/icons/soundwave-logo';
 
 const GoogleIcon = () => (
     <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -82,7 +83,7 @@ export default function LoginPage() {
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <div className="flex justify-center text-primary">
-            <Music size={40} />
+            <SoundWaveLogo className="h-10 w-10 text-primary" />
         </div>
         <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-foreground">
           Sign in to your account
