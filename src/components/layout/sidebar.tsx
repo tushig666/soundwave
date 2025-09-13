@@ -30,6 +30,7 @@ const menuItems = [
   { href: '/library', label: 'Your Library', icon: Library },
   { href: '/curator', label: 'AI Curator', icon: WandSparkles },
   { href: '/upload', label: 'Upload', icon: UploadCloud },
+  { href: '/profile/me', label: 'My Profile', icon: User },
 ];
 
 const playlists = [
@@ -45,6 +46,10 @@ export function AppSidebar() {
   const isActive = (href: string) => {
     if (href === '/') {
       return pathname === href;
+    }
+    // For profile, we want an exact match
+    if (href === '/profile/me') {
+        return pathname === href;
     }
     return pathname.startsWith(href);
   };
@@ -98,12 +103,8 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <Link href="/profile/me" legacyBehavior passHref>
-          <SidebarMenuButton tooltip="Profile">
-            <User />
-            <span>My Profile</span>
-          </SidebarMenuButton>
-        </Link>
+        {/* The profile link is now in the main menu. 
+            You can add other footer items here if needed. */}
       </SidebarFooter>
     </>
   );
