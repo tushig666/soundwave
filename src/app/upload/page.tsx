@@ -122,7 +122,7 @@ export default function UploadPage() {
                               className="relative mt-2 cursor-pointer text-xs text-primary hover:underline"
                             >
                               <span>Change file</span>
-                              <input id="audio" name="audio" type="file" className="sr-only" accept="audio/*" onChange={handleAudioChange} required />
+                              <input id="audio" name="audio" type="file" className="sr-only" accept="audio/*" onChange={handleAudioChange} />
                             </label>
                       </div>
                     ) : (
