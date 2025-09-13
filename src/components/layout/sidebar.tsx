@@ -15,6 +15,7 @@ import {
   LogOut,
   UserPlus,
   Loader2,
+  KeyRound,
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -146,7 +147,7 @@ export function AppSidebar() {
                   isActive={pathname === '/login'}
                   tooltip="Login"
                 >
-                  <LogIn />
+                  <KeyRound />
                   <span>Login</span>
                 </SidebarMenuButton>
               </Link>
