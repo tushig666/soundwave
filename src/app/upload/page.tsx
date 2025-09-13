@@ -59,7 +59,7 @@ export default function UploadPage() {
     }
   };
   
-  const uploadFile = (file: File, path: string) => {
+  const uploadFile = (file: File, path: string, progressOffset: number, progressTotal: number) => {
     return new Promise<string>((resolve, reject) => {
       const storageRef = ref(storage, path);
       const uploadTask = uploadBytesResumable(storageRef, file);
@@ -67,7 +67,7 @@ export default function UploadPage() {
       uploadTask.on('state_changed',
         (snapshot) => {
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(progress);
+          setUploadProgress(progressOffset + (progress / 100) * progressTotal);
         },
         (error) => {
           console.error("Upload error:", error);
@@ -102,6 +102,7 @@ export default function UploadPage() {
     }
 
     setIsUploading(true);
+    setUploadProgress(0);
     
     try {
       const formData = new FormData(e.currentTarget);
@@ -110,15 +111,12 @@ export default function UploadPage() {
       const description = formData.get('description') as string;
       const timestamp = Date.now();
 
-      // 1. Upload files to Firebase Storage with progress
+      // We'll give 50% of the progress to each file
       const coverPath = `covers/${user.uid}/${timestamp}_${coverFile.name}`;
-      const coverUrl = await uploadFile(coverFile, coverPath);
+      const coverUrl = await uploadFile(coverFile, coverPath, 0, 50);
       
-      // Reset progress for the next file
-      setUploadProgress(0);
-
       const audioPath = `audio/${user.uid}/${timestamp}_${audioFile.name}`;
-      const audioUrl = await uploadFile(audioFile, audioPath);
+      const audioUrl = await uploadFile(audioFile, audioPath, 50, 50);
 
 
       // 2. Create song document in Firestore
@@ -278,7 +276,7 @@ export default function UploadPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button type="submit">
+                <Button type="submit" disabled={isUploading}>
                   <UploadCloud className="mr-2 h-4 w-4" />
                   Upload Song
                 </Button>
@@ -290,3 +288,4 @@ export default function UploadPage() {
     </AuthRequired>
   );
 }
+
