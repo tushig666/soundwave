@@ -84,7 +84,7 @@ export function AppSidebar() {
         <SidebarMenu>
           {guestMenuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              <Link href={item.href} legacyBehavior passHref>
+              <Link href={item.href}>
                 <SidebarMenuButton
                   isActive={isActive(item.href)}
                   tooltip={item.label}
@@ -98,7 +98,7 @@ export function AppSidebar() {
           {user &&
             authenticatedMenuItems.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} legacyBehavior passHref>
+                <Link href={item.href}>
                   <SidebarMenuButton
                     isActive={isActive(item.href)}
                     tooltip={item.label}
@@ -120,7 +120,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {playlists.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <Link href={item.href} legacyBehavior passHref>
+                  <Link href={item.href}>
                     <SidebarMenuButton
                       size="sm"
                       isActive={isActive(item.href)}
@@ -141,7 +141,7 @@ export function AppSidebar() {
           {!user ? (
             <>
               <SidebarMenuItem>
-                <Link href="/signup" legacyBehavior passHref>
+                <Link href="/signup">
                   <SidebarMenuButton
                     isActive={pathname === '/signup'}
                     tooltip="Sign Up"
@@ -152,7 +152,7 @@ export function AppSidebar() {
                 </Link>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <Link href="/login" legacyBehavior passHref>
+                <Link href="/login">
                   <SidebarMenuButton
                     isActive={pathname === '/login'}
                     tooltip="Login"
