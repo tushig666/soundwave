@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -9,6 +10,7 @@ import {
   PlusCircle,
   Heart,
   UploadCloud,
+  TrendingUp,
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -25,6 +27,7 @@ import { usePathname } from 'next/navigation';
 
 const menuItems = [
   { href: '/', label: 'Home', icon: Home },
+  { href: '/trending', label: 'Trending', icon: TrendingUp },
   { href: '/search', label: 'Search', icon: Search },
   { href: '/library', label: 'Your Library', icon: Library },
   { href: '/upload', label: 'Upload', icon: UploadCloud },
