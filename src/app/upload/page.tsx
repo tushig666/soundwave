@@ -83,13 +83,14 @@ export default function UploadPage() {
       const title = formData.get('title') as string;
       const genre = formData.get('genre') as string;
       const description = formData.get('description') as string;
+      const timestamp = Date.now();
 
       // 1. Upload files to Firebase Storage
-      const coverArtRef = ref(storage, `covers/${user.uid}/${Date.now()}_${coverFile.name}`);
+      const coverArtRef = ref(storage, `covers/${user.uid}/${timestamp}_${coverFile.name}`);
       await uploadBytes(coverArtRef, coverFile);
       const coverUrl = await getDownloadURL(coverArtRef);
 
-      const audioFileRef = ref(storage, `audio/${user.uid}/${Date.now()}_${audioFile.name}`);
+      const audioFileRef = ref(storage, `audio/${user.uid}/${timestamp}_${audioFile.name}`);
       await uploadBytes(audioFileRef, audioFile);
       const audioUrl = await getDownloadURL(audioFileRef);
 
