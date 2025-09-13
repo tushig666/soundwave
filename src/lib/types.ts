@@ -13,6 +13,7 @@ export type Song = {
 export type User = {
   id: string;
   name: string;
+  artistId: string;
   bio: string;
   profilePictureUrl: string;
 };

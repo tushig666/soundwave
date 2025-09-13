@@ -1,5 +1,50 @@
-import type { Song } from './types';
+import type { Song, User } from './types';
 import { PlaceHolderImages } from './placeholder-images';
+
+export const mockUsers: User[] = [
+  {
+    id: 'u1',
+    name: 'Ginjin',
+    artistId: 'a1',
+    bio: 'Rapper from Ulaanbaatar, bringing the fire from the streets to your speakers. Stay tuned for more heat.',
+    profilePictureUrl: 'https://picsum.photos/seed/u1/200/200',
+  },
+  {
+    id: 'u2',
+    name: 'Fla',
+    artistId: 'a2',
+    bio: 'Smooth R&B and soul singer. My music is all about vibes and connecting with you.',
+    profilePictureUrl: 'https://picsum.photos/seed/u2/200/200',
+  },
+  {
+    id: 'u3',
+    name: 'Lil Thug E',
+    artistId: 'a3',
+    bio: 'Hip Hop artist making waves. My tracks are for the confident and the bold. Big steppin only.',
+    profilePictureUrl: 'https://picsum.photos/seed/u3/200/200',
+  },
+  {
+    id: 'u4',
+    name: 'Mrs M',
+    artistId: 'a4',
+    bio: 'Pop singer and songwriter. I pour my heart into every song. Follow my journey.',
+    profilePictureUrl: 'https://picsum.photos/seed/u4/200/200',
+  },
+    {
+    id: 'u5',
+    name: '168',
+    artistId: 'a5',
+    bio: 'Rap artist speaking my truth. My music is a tribute to the important things in life.',
+    profilePictureUrl: 'https://picsum.photos/seed/u5/200/200',
+  },
+  {
+    id: 'u6',
+    name: 'Cili',
+    artistId: 'a6',
+    bio: 'Indie artist creating dreamy soundscapes. Perfect for rainy days and thoughtful moments.',
+    profilePictureUrl: 'https://picsum.photos/seed/u6/200/200',
+  },
+];
 
 export const mockSongs: Song[] = [
   {
