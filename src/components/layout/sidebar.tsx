@@ -10,7 +10,7 @@ import {
   PlusCircle,
   Heart,
   UploadCloud,
-  TrendingUp,
+  Flame,
   LogIn,
   LogOut,
   UserPlus,
@@ -122,7 +122,7 @@ export function AppSidebar() {
                   isActive={pathname.startsWith('/trending') || isHomeActive}
                   tooltip="Trending"
                 >
-                  <TrendingUp />
+                  <Flame />
                   <span>Trending</span>
                 </SidebarMenuButton>
               </Link>
