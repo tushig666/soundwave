@@ -6,18 +6,20 @@ import Image from 'next/image';
 import { useSongStore } from '@/lib/store';
 import { SongCard } from '@/components/song-card';
 import { Button } from '@/components/ui/button';
-import { User, Edit, Music } from 'lucide-react';
+import { User, Edit, Music, LogOut } from 'lucide-react';
 import { AuthRequired } from '@/components/auth-required';
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
+import { useToast } from '@/hooks/use-toast';
+import { auth } from '@/lib/firebase/client';
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const { songs, fetchSongs } = useSongStore();
   const router = useRouter();
+  const { toast } = useToast();
   
   useEffect(() => {
     if (user?.uid) {
@@ -26,6 +28,12 @@ export default function ProfilePage() {
       fetchSongs();
     }
   }, [fetchSongs, user?.uid]);
+  
+  const handleLogout = async () => {
+    await auth.signOut();
+    toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
+    router.push('/login');
+  };
 
   if (authLoading || !user) {
     return (
@@ -89,12 +97,18 @@ export default function ProfilePage() {
             </div>
              <p className="max-w-md text-muted-foreground">{user.email}</p>
              <p className="max-w-md text-muted-foreground">Welcome to your profile. View your uploaded songs below.</p>
-            <Link href="/profile/edit">
-                <Button variant="outline" size="sm" className="mt-2">
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit Profile
-                </Button>
-            </Link>
+            <div className="flex items-center gap-2 mt-2">
+              <Link href="/profile/edit">
+                  <Button variant="outline" size="sm">
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Profile
+                  </Button>
+              </Link>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+              </Button>
+            </div>
             </div>
         </header>
 
