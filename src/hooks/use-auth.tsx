@@ -41,19 +41,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, [fetchSongs]);
 
-  if (loading) {
-     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <div className="w-1/2 space-y-4">
-            <h1 className="text-2xl font-bold text-center">Loading SoundWave...</h1>
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <AuthContext.Provider value={{ user, loading }}>
       {children}
