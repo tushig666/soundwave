@@ -1,3 +1,4 @@
+
 export type Song = {
   id: string;
   title: string;
@@ -9,6 +10,7 @@ export type Song = {
   description: string;
   likes: number;
   isPublic: boolean;
+  likedByUser?: boolean; // Added to track user's like status
 };
 
 export type User = {

@@ -9,7 +9,7 @@ interface SongState {
   songs: Song[];
   users: User[];
   addSong: (song: Song) => void;
-  likeSong: (songId: string) => void;
+  toggleLike: (songId: string) => void;
 }
 
 export const useSongStore = create<SongState>()((set) => ({
@@ -19,10 +19,18 @@ export const useSongStore = create<SongState>()((set) => ({
     set((state) => ({
       songs: [...state.songs, song],
     })),
-  likeSong: (songId) =>
+  toggleLike: (songId) =>
     set((state) => ({
-      songs: state.songs.map((song) =>
-        song.id === songId ? { ...song, likes: song.likes + 1 } : song
-      ),
+      songs: state.songs.map((song) => {
+        if (song.id === songId) {
+          const isLiked = song.likedByUser;
+          return {
+            ...song,
+            likes: isLiked ? song.likes - 1 : song.likes + 1,
+            likedByUser: !isLiked,
+          };
+        }
+        return song;
+      }),
     })),
 }));

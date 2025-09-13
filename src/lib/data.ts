@@ -1,3 +1,4 @@
+
 import type { Song, User } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -58,6 +59,7 @@ export const mockSongs: Song[] = [
     description: 'Hard-hitting rap from the heart of Ulaanbaatar.',
     likes: 1500,
     isPublic: true,
+    likedByUser: false,
   },
   {
     id: '2',
@@ -70,6 +72,7 @@ export const mockSongs: Song[] = [
     description: 'Smooth R&B vibes for a chill evening.',
     likes: 2800,
     isPublic: true,
+    likedByUser: true,
   },
   {
     id: '3',
@@ -82,6 +85,7 @@ export const mockSongs: Song[] = [
     description: 'A confident hip-hop track with a heavy beat.',
     likes: 4200,
     isPublic: true,
+    likedByUser: false,
   },
   {
     id: '4',
@@ -94,6 +98,7 @@ export const mockSongs: Song[] = [
     description: 'An emotional pop ballad about love.',
     likes: 950,
     isPublic: false,
+    likedByUser: false,
   },
   {
     id: '5',
@@ -106,6 +111,7 @@ export const mockSongs: Song[] = [
     description: 'A tribute to parents and family.',
     likes: 3100,
     isPublic: true,
+    likedByUser: false,
   },
   {
     id: '6',
@@ -118,5 +124,6 @@ export const mockSongs: Song[] = [
     description: 'Dreamy indie track for a rainy day.',
     likes: 1100,
     isPublic: true,
+    likedByUser: true,
   },
 ];

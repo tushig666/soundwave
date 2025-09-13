@@ -7,8 +7,8 @@ import { useSongStore } from '@/lib/store';
 export default function Home() {
   const songs = useSongStore((state) => state.songs);
   const publicSongs = songs.filter((song) => song.isPublic);
-  const recentUploads = publicSongs.slice(-6).reverse();
-  const trendingNow = [...publicSongs].sort((a, b) => b.likes - a.likes);
+  const recentUploads = [...publicSongs].sort((a,b) => b.id.localeCompare(a.id)).slice(0, 6);
+  const trendingNow = [...publicSongs].sort((a, b) => b.likes - a.likes).slice(0, 12);
 
   return (
     <div className="p-4 md:p-6">

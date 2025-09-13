@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -19,33 +20,31 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useState, useEffect } from 'react';
 import { useSongStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
+import type { Song } from '@/lib/types';
 
 export function Player() {
-  const { activeSong, isPlaying, togglePlay, playNext, playPrev } = usePlayer();
-  const { likeSong, songs } = useSongStore();
-  const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(0.5);
-  // These would be driven by the audio element's state
-  const [progress, setProgress] = useState(30);
-  const [duration, setDuration] = useState(240); // Mock duration in seconds
+  const {
+    activeSong,
+    isPlaying,
+    togglePlay,
+    playNext,
+    playPrev,
+    progress,
+    duration,
+    handleProgressChange,
+    volume,
+    isMuted,
+    handleVolumeChange,
+    toggleMute,
+  } = usePlayer();
 
-  const currentSong = songs.find(s => s.id === activeSong?.id);
-  const [isLiked, setIsLiked] = useState(false);
+  const { songs, toggleLike } = useSongStore();
 
-  useEffect(() => {
-    // For now, we'll just use a local state to track "liked" status
-    // In a real app, this would be tied to a user's account
-  }, [activeSong]);
-
+  const currentSongDetails = songs.find((s) => s.id === activeSong?.id);
 
   const handleLike = () => {
-    if (!currentSong) return;
-    if (!isLiked) {
-        likeSong(currentSong.id);
-    }
-    // Note: In a real app, you'd handle un-liking as well.
-    // For this demo, we'll just toggle the visual state.
-    setIsLiked(!isLiked);
+    if (!currentSongDetails) return;
+    toggleLike(currentSongDetails.id);
   };
 
   const songImage = PlaceHolderImages.find((p) => p.id === 'song-cover-1') ?? {
@@ -81,7 +80,7 @@ export function Player() {
           </div>
            <Button variant="ghost" size="icon" onClick={handleLike}>
             <Heart
-              className={cn('h-5 w-5', isLiked && 'fill-red-500 text-red-500')}
+              className={cn('h-5 w-5', currentSongDetails?.likedByUser && 'fill-red-500 text-red-500')}
             />
           </Button>
         </div>
@@ -131,7 +130,7 @@ export function Player() {
             max={duration}
             step={1}
             className="w-full"
-            onValueChange={(value) => setProgress(value[0])}
+            onValueChange={(value) => handleProgressChange(value[0])}
           />
           <span className="w-10 text-xs text-muted-foreground">
             {formatTime(duration)}
@@ -140,7 +139,7 @@ export function Player() {
       </div>
 
       <div className="flex w-1/4 items-center justify-end gap-2">
-        <Button variant="ghost" size="icon" onClick={() => setIsMuted(!isMuted)}>
+        <Button variant="ghost" size="icon" onClick={toggleMute}>
           {isMuted || volume === 0 ? (
             <VolumeX className="h-5 w-5" />
           ) : (
@@ -152,10 +151,7 @@ export function Player() {
           max={1}
           step={0.01}
           className="w-24"
-          onValueChange={(value) => {
-            setVolume(value[0]);
-            if (isMuted && value[0] > 0) setIsMuted(false);
-          }}
+          onValueChange={(value) => handleVolumeChange(value[0])}
         />
       </div>
     </div>
