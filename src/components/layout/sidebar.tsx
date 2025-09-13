@@ -51,7 +51,6 @@ import { SoundWaveLogo } from '../icons/soundwave-logo';
 
 
 const authenticatedMenuItems = [
-  { href: '/library', label: 'Your Library', icon: Library },
   { href: '/upload', label: 'Upload', icon: UploadCloud },
   { href: '/profile/me', label: 'My Profile', icon: User },
 ];
