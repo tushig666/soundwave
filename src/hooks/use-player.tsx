@@ -24,35 +24,38 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   // Initialize Audio element on client side
   useEffect(() => {
-    audioRef.current = new Audio();
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
   }, []);
 
   // Effect to handle song loading and playback
   useEffect(() => {
-    if (!audioRef.current) return;
-
+    const audioElement = audioRef.current;
+    if (!audioElement) return;
+    
     if (activeSong) {
-      // Set new source if it's a different song
-      if (audioRef.current.src !== activeSong.audioUrl) {
-        audioRef.current.src = activeSong.audioUrl;
-      }
-      
-      // Handle play/pause based on isPlaying state
-      if (isPlaying) {
-        audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
+      if (audioElement.src !== activeSong.audioUrl) {
+        audioElement.src = activeSong.audioUrl;
+        // When the source changes, we want to play it if isPlaying is true.
+        if (isPlaying) {
+          audioElement.play().catch(e => console.error("Audio playback failed:", e));
+        }
       } else {
-        audioRef.current.pause();
+         // If the source is the same, just handle play/pause
+        if (isPlaying) {
+          audioElement.play().catch(e => console.error("Audio playback failed:", e));
+        } else {
+          audioElement.pause();
+        }
       }
     } else {
-      // If no active song, pause and reset
-      audioRef.current.pause();
-      audioRef.current.src = '';
+      audioElement.pause();
     }
   }, [activeSong, isPlaying]);
 
 
   const play = (song: Song, newPlaylist: Song[] = []) => {
-    // If it's the same song, just toggle play/pause
     if (activeSong?.id === song.id) {
       togglePlay();
       return;
