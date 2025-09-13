@@ -1,5 +1,9 @@
 # SoundWave 🎵
 
+[![en](https://img.shields.io/badge/lang-English-blue.svg)](README.en.md)
+[![mn](https://img.shields.io/badge/lang-Монгол-red.svg)](README.mn.md)
+[![jp](https://img.shields.io/badge/lang-日本語-green.svg)](README.md)
+
 ## Project Overview
 SoundWave is a music streaming platform built with modern web technologies. Users can upload, share, and play music, as well as create playlists and share their favorite tracks.
 

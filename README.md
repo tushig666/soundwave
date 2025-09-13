@@ -1,5 +1,9 @@
 # SoundWave 🎵
 
+[![en](https://img.shields.io/badge/lang-English-blue.svg)](README.en.md)
+[![mn](https://img.shields.io/badge/lang-Монгол-red.svg)](README.mn.md)
+[![jp](https://img.shields.io/badge/lang-日本語-green.svg)](README.md)
+
 ## プロジェクト概要
 SoundWaveは最新のWeb技術を活用した音楽ストリーミングプラットフォームです。ユーザーは音楽をアップロード、共有、再生できる他、プレイリストの作成や音楽の共有が可能です。
 
