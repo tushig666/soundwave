@@ -16,11 +16,12 @@ import Image from 'next/image';
 import { usePlayer } from '@/hooks/use-player';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useState, useEffect } from 'react';
 import { useSongStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import type { Song } from '@/lib/types';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
 
 export function Player() {
   const {
@@ -37,19 +38,29 @@ export function Player() {
     handleVolumeChange,
     toggleMute,
   } = usePlayer();
-
+  const { user } = useAuth();
+  const { toast } = useToast();
   const { songs, toggleLike } = useSongStore();
+  const [currentSongDetails, setCurrentSongDetails] = useState<Song | undefined>(undefined);
 
-  const currentSongDetails = songs.find((s) => s.id === activeSong?.id);
+  useEffect(() => {
+    if (activeSong) {
+      const details = songs.find((s) => s.id === activeSong.id);
+      setCurrentSongDetails(details);
+    }
+  }, [activeSong, songs]);
 
   const handleLike = () => {
+    if (!user) {
+      toast({
+        title: 'Login Required',
+        description: 'You need to be logged in to like a song.',
+        variant: 'destructive',
+      });
+      return;
+    }
     if (!currentSongDetails) return;
-    toggleLike(currentSongDetails.id);
-  };
-
-  const songImage = PlaceHolderImages.find((p) => p.id === 'song-cover-1') ?? {
-    imageUrl: 'https://picsum.photos/seed/100/64/64',
-    imageHint: 'album cover',
+    toggleLike(currentSongDetails.id, user.uid);
   };
 
   if (!activeSong) {
@@ -69,7 +80,7 @@ export function Player() {
           width={64}
           height={64}
           className="rounded-md"
-          data-ai-hint={songImage.imageHint}
+          data-ai-hint="album cover"
         />
         <div className="flex items-center gap-4">
           <div>
@@ -78,7 +89,7 @@ export function Player() {
               {activeSong.artist}
             </p>
           </div>
-           <Button variant="ghost" size="icon" onClick={handleLike}>
+           <Button variant="ghost" size="icon" onClick={handleLike} disabled={!user}>
             <Heart
               className={cn('h-5 w-5', currentSongDetails?.likedByUser && 'fill-red-500 text-red-500')}
             />

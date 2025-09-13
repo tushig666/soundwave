@@ -17,31 +17,30 @@ import {
 import { Label } from '@/components/ui/label';
 import { UploadCloud, Loader2, Music, FileAudio, Lock, Globe } from 'lucide-react';
 import Image from 'next/image';
-import { useSongStore } from '@/lib/store';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { AuthRequired } from '@/components/auth-required';
 import { useAuth } from '@/hooks/use-auth';
+import { storage, db } from '@/lib/firebase/client';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 
 export default function UploadPage() {
   const { user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const { addSong, users } = useSongStore();
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [audioFileName, setAudioFileName] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isPublic, setIsPublic] = useState(true);
 
-  // We'll use the "logged in" user to associate the upload.
-  // Note: This is still using mock users. A real implementation would fetch user from auth.
-  const currentUser = users.find(u => u.artistId === 'a4');
-
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setCoverFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setCoverPreview(reader.result as string);
@@ -53,16 +52,25 @@ export default function UploadPage() {
   const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setAudioFile(file);
       setAudioFileName(file.name);
     }
   };
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!currentUser || !user) {
+    if (!user) {
       toast({
-        title: 'Error',
+        title: 'Authentication Error',
         description: 'You must be logged in to upload a song.',
+        variant: 'destructive',
+      });
+      return;
+    }
+     if (!coverFile || !audioFile) {
+      toast({
+        title: 'Missing Files',
+        description: 'Please select both cover art and an audio file.',
         variant: 'destructive',
       });
       return;
@@ -70,42 +78,53 @@ export default function UploadPage() {
 
     setIsUploading(true);
     
-    const formData = new FormData(e.currentTarget);
-    const title = formData.get('title') as string;
-    const genre = formData.get('genre') as string;
-    const description = formData.get('description') as string;
-    
-    // In a real app, we'd upload the files to a storage service
-    // and get back URLs. For now, we'll use placeholders.
-    const randomCover = PlaceHolderImages[Math.floor(Math.random() * PlaceHolderImages.length)];
-    
-    const newSong = {
-      id: `song-${Date.now()}`,
-      title,
-      artist: currentUser.name, // In a real app, use user.displayName
-      artistId: currentUser.artistId, // In a real app, use user.uid
-      coverUrl: coverPreview || randomCover.imageUrl,
-      // Using a placeholder audio file that is present in /public/audio
-      audioUrl: '/audio/midnight-drive.mp3', 
-      genre,
-      description,
-      likes: 0,
-      isPublic,
-    };
+    try {
+      const formData = new FormData(e.currentTarget);
+      const title = formData.get('title') as string;
+      const genre = formData.get('genre') as string;
+      const description = formData.get('description') as string;
 
-    // Mock upload delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    addSong(newSong);
-    setIsUploading(false);
-    
-    toast({
-      title: 'Success!',
-      description: `"${title}" has been uploaded.`,
-    });
-    
-    // Redirect to profile page to see the new song
-    router.push('/profile/me');
+      // 1. Upload files to Firebase Storage
+      const coverArtRef = ref(storage, `covers/${user.uid}/${Date.now()}_${coverFile.name}`);
+      await uploadBytes(coverArtRef, coverFile);
+      const coverUrl = await getDownloadURL(coverArtRef);
+
+      const audioFileRef = ref(storage, `audio/${user.uid}/${Date.now()}_${audioFile.name}`);
+      await uploadBytes(audioFileRef, audioFile);
+      const audioUrl = await getDownloadURL(audioFileRef);
+
+      // 2. Create song document in Firestore
+      const newSongDoc = {
+        title,
+        artist: user.displayName || 'Anonymous',
+        artistId: user.uid,
+        coverUrl,
+        audioUrl,
+        genre,
+        description,
+        likes: 0,
+        isPublic,
+        createdAt: serverTimestamp(),
+      };
+      
+      await addDoc(collection(db, 'songs'), newSongDoc);
+
+      toast({
+        title: 'Success!',
+        description: `"${title}" has been uploaded.`,
+      });
+      
+      router.push('/profile/me');
+
+    } catch (error: any) {
+       toast({
+        title: 'Upload Failed',
+        description: error.message || 'An unknown error occurred.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
 
