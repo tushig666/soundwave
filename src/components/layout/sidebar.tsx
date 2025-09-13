@@ -11,6 +11,9 @@ import {
   Heart,
   UploadCloud,
   TrendingUp,
+  LogIn,
+  LogOut,
+  UserPlus,
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -23,12 +26,18 @@ import {
   SidebarGroupLabel,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
+import { auth } from '@/lib/firebase/client';
+import { useToast } from '@/hooks/use-toast';
 
-const menuItems = [
+const guestMenuItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/trending', label: 'Trending', icon: TrendingUp },
   { href: '/search', label: 'Search', icon: Search },
+];
+
+const authenticatedMenuItems = [
   { href: '/library', label: 'Your Library', icon: Library },
   { href: '/upload', label: 'Upload', icon: UploadCloud },
   { href: '/profile/me', label: 'My Profile', icon: User },
@@ -43,14 +52,22 @@ const playlists = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    await auth.signOut();
+    toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
+    router.push('/login');
+  };
 
   const isActive = (href: string) => {
     if (href === '/') {
       return pathname === href;
     }
-    // For profile, we want an exact match
     if (href === '/profile/me') {
-        return pathname === href;
+      return pathname === href;
     }
     return pathname.startsWith(href);
   };
@@ -65,7 +82,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {menuItems.map((item) => (
+          {guestMenuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
               <Link href={item.href} legacyBehavior passHref>
                 <SidebarMenuButton
@@ -78,19 +95,11 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuItem>
           ))}
-        </SidebarMenu>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center justify-between">
-            <span>Playlists</span>
-            <PlusCircle className="h-4 w-4 cursor-pointer hover:text-primary" />
-          </SidebarGroupLabel>
-          <SidebarMenu>
-            {playlists.map((item) => (
+          {user &&
+            authenticatedMenuItems.map((item) => (
               <SidebarMenuItem key={item.label}>
                 <Link href={item.href} legacyBehavior passHref>
                   <SidebarMenuButton
-                    size="sm"
                     isActive={isActive(item.href)}
                     tooltip={item.label}
                   >
@@ -100,12 +109,69 @@ export function AppSidebar() {
                 </Link>
               </SidebarMenuItem>
             ))}
-          </SidebarMenu>
-        </SidebarGroup>
+        </SidebarMenu>
+
+        {user && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="flex items-center justify-between">
+              <span>Playlists</span>
+              <PlusCircle className="h-4 w-4 cursor-pointer hover:text-primary" />
+            </SidebarGroupLabel>
+            <SidebarMenu>
+              {playlists.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  <Link href={item.href} legacyBehavior passHref>
+                    <SidebarMenuButton
+                      size="sm"
+                      isActive={isActive(item.href)}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter>
-        {/* The profile link is now in the main menu. 
-            You can add other footer items here if needed. */}
+        <SidebarMenu>
+          {!user ? (
+            <>
+              <SidebarMenuItem>
+                <Link href="/signup" legacyBehavior passHref>
+                  <SidebarMenuButton
+                    isActive={pathname === '/signup'}
+                    tooltip="Sign Up"
+                  >
+                    <UserPlus />
+                    <span>Sign Up</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/login" legacyBehavior passHref>
+                  <SidebarMenuButton
+                    isActive={pathname === '/login'}
+                    tooltip="Login"
+                  >
+                    <LogIn />
+                    <span>Login</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            </>
+          ) : (
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
+                <LogOut />
+                <span>Logout</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+        </SidebarMenu>
       </SidebarFooter>
     </>
   );
