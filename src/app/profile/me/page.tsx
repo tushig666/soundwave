@@ -6,18 +6,26 @@ import Image from 'next/image';
 import { useSongStore } from '@/lib/store';
 import { SongCard } from '@/components/song-card';
 import { Button } from '@/components/ui/button';
-import { User, Edit } from 'lucide-react';
+import { User, Edit, Music } from 'lucide-react';
 import { AuthRequired } from '@/components/auth-required';
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const { songs, fetchSongs } = useSongStore();
+  const router = useRouter();
   
   useEffect(() => {
-    fetchSongs();
-  }, [fetchSongs]);
+    if (user?.uid) {
+      fetchSongs(user.uid);
+    } else {
+      fetchSongs();
+    }
+  }, [fetchSongs, user?.uid]);
 
   if (authLoading || !user) {
     return (
@@ -52,7 +60,7 @@ export default function ProfilePage() {
   );
   
   const displayName = user.displayName || 'User';
-  const profilePic = user.photoURL || 'https://picsum.photos/seed/u1/400/400';
+  const profilePic = user.photoURL;
 
 
   return (
@@ -60,7 +68,7 @@ export default function ProfilePage() {
         <div className="p-4 md:p-6">
         <header className="mb-8 flex flex-col items-center gap-6 md:flex-row">
             <div className="relative h-32 w-32 shrink-0 md:h-40 md:w-40">
-            {profilePic && (
+            {profilePic ? (
                 <Image
                     src={profilePic}
                     alt={`${displayName}'s profile picture`}
@@ -68,6 +76,10 @@ export default function ProfilePage() {
                     className="rounded-full object-cover shadow-lg"
                     data-ai-hint="user profile"
                 />
+            ) : (
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-muted shadow-lg">
+                    <User className="h-16 w-16 text-muted-foreground" />
+                </div>
             )}
             </div>
             <div className="flex flex-col items-center gap-2 text-center md:items-start md:text-left">
@@ -77,10 +89,12 @@ export default function ProfilePage() {
             </div>
              <p className="max-w-md text-muted-foreground">{user.email}</p>
              <p className="max-w-md text-muted-foreground">Welcome to your profile. View your uploaded songs below.</p>
-            <Button variant="outline" size="sm" className="mt-2">
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Profile
-            </Button>
+            <Link href="/profile/edit">
+                <Button variant="outline" size="sm" className="mt-2">
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Profile
+                </Button>
+            </Link>
             </div>
         </header>
 
@@ -94,8 +108,11 @@ export default function ProfilePage() {
             </div>
             ) : (
             <div className="flex h-48 flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-8 text-center text-muted-foreground">
-                <p>You haven't uploaded any songs yet.</p>
-                <Button variant="primary" size="sm" className="mt-4" onClick={() => router.push('/upload')}>Upload your first song</Button>
+                <Music className="h-12 w-12" />
+                <p className="mt-4">You haven't uploaded any songs yet.</p>
+                 <Link href="/upload" passHref>
+                    <Button variant="primary" size="sm" className="mt-4">Upload your first song</Button>
+                </Link>
             </div>
             )}
         </section>
