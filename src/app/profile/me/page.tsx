@@ -74,7 +74,7 @@ export default function ProfilePage() {
   return (
     <AuthRequired>
         <div className="p-4 md:p-6">
-        <header className="mb-8 flex flex-col items-center gap-6 md:flex-row">
+        <header className="relative mb-8 flex flex-col items-center gap-6 md:flex-row">
             <div className="relative h-32 w-32 shrink-0 md:h-40 md:w-40">
             {profilePic ? (
                 <Image
@@ -97,19 +97,19 @@ export default function ProfilePage() {
             </div>
              <p className="max-w-md text-muted-foreground">{user.email}</p>
              <p className="max-w-md text-muted-foreground">Welcome to your profile. View your uploaded songs below.</p>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="mt-2">
               <Link href="/profile/edit">
                   <Button variant="outline" size="sm">
                       <Edit className="mr-2 h-4 w-4" />
                       Edit Profile
                   </Button>
               </Link>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-              </Button>
             </div>
             </div>
+            <Button variant="ghost" size="icon" onClick={handleLogout} className="absolute top-0 right-0 h-8 w-8">
+                <LogOut className="h-4 w-4" />
+                <span className="sr-only">Logout</span>
+            </Button>
         </header>
 
         <section>
