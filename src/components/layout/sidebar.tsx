@@ -48,6 +48,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SoundWaveLogo } from '../icons/soundwave-logo';
+import { Skeleton } from '../ui/skeleton';
 
 
 const authenticatedMenuItems = [
@@ -59,7 +60,7 @@ const authenticatedMenuItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const { playlists, fetchPlaylists, createPlaylist } = useSongStore();
   const [isCreating, setIsCreating] = useState(false);
@@ -106,6 +107,52 @@ export function AppSidebar() {
   
   const isHomeActive = pathname === '/';
 
+  const renderAuthSensitiveMenu = () => {
+    if (authLoading) {
+      return (
+        <>
+          <SidebarMenuItem>
+             <Skeleton className="h-8 w-full" />
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+             <Skeleton className="h-8 w-full" />
+          </SidebarMenuItem>
+        </>
+      )
+    }
+
+    if (!user) {
+      return (
+        <SidebarMenuItem>
+          <Link href="/login">
+            <SidebarMenuButton
+              isActive={pathname === '/login'}
+              tooltip="Login"
+            >
+              <LogIn />
+              <span>Login</span>
+            </SidebarMenuButton>
+          </Link>
+        </SidebarMenuItem>
+      );
+    }
+
+    return authenticatedMenuItems.map((item) => (
+      <SidebarMenuItem key={item.label}>
+        <Link href={item.href}>
+          <SidebarMenuButton
+            isActive={isActive(item.href)}
+            tooltip={item.label}
+          >
+            <item.icon />
+            <span>{item.label}</span>
+          </SidebarMenuButton>
+        </Link>
+      </SidebarMenuItem>
+    ));
+  };
+
+
   return (
     <>
       <SidebarHeader>
@@ -138,33 +185,7 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
-
-          {!user ? (
-            <SidebarMenuItem>
-              <Link href="/login">
-                <SidebarMenuButton
-                  isActive={pathname === '/login'}
-                  tooltip="Login"
-                >
-                  <LogIn />
-                  <span>Login</span>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          ) : (
-            authenticatedMenuItems.map((item) => (
-              <SidebarMenuItem key={item.label}>
-                <Link href={item.href}>
-                  <SidebarMenuButton
-                    isActive={isActive(item.href)}
-                    tooltip={item.label}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            )))}
+            {renderAuthSensitiveMenu()}
         </SidebarMenu>
 
         {user && (
@@ -252,5 +273,3 @@ export function AppSidebar() {
     </>
   );
 }
-
-    
