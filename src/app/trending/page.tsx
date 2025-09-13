@@ -4,7 +4,7 @@
 import { useEffect } from 'react';
 import { SongCard } from '@/components/song-card';
 import { useSongStore } from '@/lib/store';
-import { TrendingUp } from 'lucide-react';
+import { Flame } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function TrendingPage() {
@@ -25,7 +25,7 @@ export default function TrendingPage() {
   return (
     <div className="p-4 md:p-6">
       <div className="mb-6 flex items-center gap-4">
-        <TrendingUp className="h-8 w-8 text-primary" />
+        <Flame className="h-8 w-8 text-primary" />
         <h1 className="text-3xl font-bold">Trending</h1>
       </div>
       
