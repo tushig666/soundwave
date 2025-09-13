@@ -8,7 +8,6 @@ import {
   Library,
   PlusCircle,
   Heart,
-  WandSparkles,
   UploadCloud,
 } from 'lucide-react';
 import {
@@ -28,7 +27,6 @@ const menuItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/search', label: 'Search', icon: Search },
   { href: '/library', label: 'Your Library', icon: Library },
-  { href: '/curator', label: 'AI Curator', icon: WandSparkles },
   { href: '/upload', label: 'Upload', icon: UploadCloud },
   { href: '/profile/me', label: 'My Profile', icon: User },
 ];
