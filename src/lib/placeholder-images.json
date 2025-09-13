@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "song-cover-1",
+      "description": "Abstract album cover with blue and purple hues.",
+      "imageUrl": "https://picsum.photos/seed/101/400/400",
+      "imageHint": "abstract album"
+    },
+    {
+      "id": "song-cover-2",
+      "description": "Minimalist geometric pattern album cover.",
+      "imageUrl": "https://picsum.photos/seed/102/400/400",
+      "imageHint": "geometric pattern"
+    },
+    {
+      "id": "song-cover-3",
+      "description": "Vibrant cityscape at night for an album cover.",
+      "imageUrl": "https://picsum.photos/seed/103/400/400",
+      "imageHint": "night cityscape"
+    },
+    {
+      "id": "song-cover-4",
+      "description": "Calm nature scene with a lake.",
+      "imageUrl": "https://picsum.photos/seed/104/400/400",
+      "imageHint": "calm lake"
+    },
+    {
+      "id": "song-cover-5",
+      "description": "Black and white portrait.",
+      "imageUrl": "https://picsum.photos/seed/105/400/400",
+      "imageHint": "monochrome portrait"
+    },
+    {
+      "id": "song-cover-6",
+      "description": "Retro wave synthwave style.",
+      "imageUrl": "https://picsum.photos/seed/106/400/400",
+      "imageHint": "retro wave"
+    }
+  ]
 }
