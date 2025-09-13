@@ -13,11 +13,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { UploadCloud, Loader2, Music } from 'lucide-react';
+import { UploadCloud, Loader2, Music, FileAudio } from 'lucide-react';
 import Image from 'next/image';
 
 export default function UploadPage() {
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [audioFileName, setAudioFileName] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,6 +29,13 @@ export default function UploadPage() {
         setCoverPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAudioFileName(file.name);
     }
   };
   
@@ -104,21 +112,35 @@ export default function UploadPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="audio">Audio File</Label>
-                 <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 dark:border-gray-100/25">
-                    <div className="text-center">
-                        <Music className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-500" aria-hidden="true" />
-                        <div className="mt-4 flex text-sm leading-6 text-gray-600 dark:text-gray-400">
-                            <label
-                                htmlFor="audio"
-                                className="relative cursor-pointer rounded-md bg-white dark:bg-gray-900 font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 hover:text-primary-dark"
+                 <div className="mt-2 flex h-full flex-col items-center justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 dark:border-gray-100/25">
+                    {audioFileName ? (
+                      <div className="text-center">
+                        <FileAudio className="mx-auto h-12 w-12 text-primary" />
+                        <p className="mt-4 text-sm font-medium text-foreground">{audioFileName}</p>
+                         <label
+                              htmlFor="audio"
+                              className="relative mt-2 cursor-pointer text-xs text-primary hover:underline"
                             >
-                                <span>Upload a file</span>
-                                <input id="audio" name="audio" type="file" className="sr-only" accept="audio/*" required />
+                              <span>Change file</span>
+                              <input id="audio" name="audio" type="file" className="sr-only" accept="audio/*" onChange={handleAudioChange} required />
                             </label>
-                            <p className="pl-1">or drag and drop</p>
-                        </div>
-                        <p className="text-xs leading-5 text-gray-600 dark:text-gray-500">MP3, WAV, FLAC up to 20MB</p>
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                          <Music className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-500" aria-hidden="true" />
+                          <div className="mt-4 flex text-sm leading-6 text-gray-600 dark:text-gray-400">
+                              <label
+                                  htmlFor="audio"
+                                  className="relative cursor-pointer rounded-md bg-white dark:bg-gray-900 font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 hover:text-primary-dark"
+                              >
+                                  <span>Upload a file</span>
+                                  <input id="audio" name="audio" type="file" className="sr-only" accept="audio/*" onChange={handleAudioChange} required />
+                              </label>
+                              <p className="pl-1">or drag and drop</p>
+                          </div>
+                          <p className="text-xs leading-5 text-gray-600 dark:text-gray-500">MP3, WAV, FLAC up to 20MB</p>
+                      </div>
+                    )}
                 </div>
               </div>
             </div>
