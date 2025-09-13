@@ -22,26 +22,42 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Initialize Audio element on client side
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      audioRef.current = new Audio();
-    }
+    audioRef.current = new Audio();
   }, []);
 
+  // Effect to handle song loading and playback
   useEffect(() => {
-    if (audioRef.current && activeSong) {
+    if (!audioRef.current) return;
+
+    if (activeSong) {
+      // Set new source if it's a different song
       if (audioRef.current.src !== activeSong.audioUrl) {
         audioRef.current.src = activeSong.audioUrl;
       }
+      
+      // Handle play/pause based on isPlaying state
       if (isPlaying) {
-        audioRef.current.play().catch(e => console.error("Playback failed", e));
+        audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
       } else {
         audioRef.current.pause();
       }
+    } else {
+      // If no active song, pause and reset
+      audioRef.current.pause();
+      audioRef.current.src = '';
     }
   }, [activeSong, isPlaying]);
 
+
   const play = (song: Song, newPlaylist: Song[] = []) => {
+    // If it's the same song, just toggle play/pause
+    if (activeSong?.id === song.id) {
+      togglePlay();
+      return;
+    }
+    
     setActiveSong(song);
     if (newPlaylist.length > 0) {
       setPlaylist(newPlaylist);
