@@ -15,11 +15,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { UploadCloud, Loader2, Music, FileAudio } from 'lucide-react';
+import { UploadCloud, Loader2, Music, FileAudio, Lock, Globe } from 'lucide-react';
 import Image from 'next/image';
 import { useSongStore } from '@/lib/store';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
 
 export default function UploadPage() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function UploadPage() {
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [audioFileName, setAudioFileName] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
 
   // We'll use the "logged in" user to associate the upload.
   const currentUser = users.find(u => u.artistId === 'a4');
@@ -83,6 +85,7 @@ export default function UploadPage() {
       genre,
       description,
       likes: 0,
+      isPublic,
     };
 
     // Mock upload delay
@@ -137,6 +140,25 @@ export default function UploadPage() {
                 rows={3}
               />
             </div>
+             <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="public-status" className="flex items-center gap-2 text-base">
+                  {isPublic ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                  {isPublic ? 'Public' : 'Private'}
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  {isPublic
+                    ? 'This song will be visible to everyone.'
+                    : 'Only you can see this song.'}
+                </p>
+              </div>
+              <Switch
+                id="public-status"
+                name="isPublic"
+                checked={isPublic}
+                onCheckedChange={setIsPublic}
+              />
+            </div>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="cover">Cover Art</Label>
@@ -153,7 +175,7 @@ export default function UploadPage() {
                                 className="relative cursor-pointer rounded-md bg-white dark:bg-gray-900 font-semibold text-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900 hover:text-primary-dark"
                             >
                                 <span>Upload a file</span>
-                                <input id="cover" name="cover" type="file" className="sr-only" accept="image/*" onChange={handleCoverChange} required />
+                                <input id="cover" name="cover" type="file" className="sr-only" accept="image/*" onChange={handleCoverChange} />
                             </label>
                             <p className="pl-1">or drag and drop</p>
                         </div>

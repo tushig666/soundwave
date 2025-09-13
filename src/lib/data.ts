@@ -57,6 +57,7 @@ export const mockSongs: Song[] = [
     genre: 'Rap',
     description: 'Hard-hitting rap from the heart of Ulaanbaatar.',
     likes: 1500,
+    isPublic: true,
   },
   {
     id: '2',
@@ -68,6 +69,7 @@ export const mockSongs: Song[] = [
     genre: 'R&B',
     description: 'Smooth R&B vibes for a chill evening.',
     likes: 2800,
+    isPublic: true,
   },
   {
     id: '3',
@@ -79,6 +81,7 @@ export const mockSongs: Song[] = [
     genre: 'Hip Hop',
     description: 'A confident hip-hop track with a heavy beat.',
     likes: 4200,
+    isPublic: true,
   },
   {
     id: '4',
@@ -90,6 +93,7 @@ export const mockSongs: Song[] = [
     genre: 'Pop',
     description: 'An emotional pop ballad about love.',
     likes: 950,
+    isPublic: false,
   },
   {
     id: '5',
@@ -101,6 +105,7 @@ export const mockSongs: Song[] = [
     genre: 'Rap',
     description: 'A tribute to parents and family.',
     likes: 3100,
+    isPublic: true,
   },
   {
     id: '6',
@@ -112,5 +117,6 @@ export const mockSongs: Song[] = [
     genre: 'Indie',
     description: 'Dreamy indie track for a rainy day.',
     likes: 1100,
+    isPublic: true,
   },
 ];

@@ -8,6 +8,7 @@ export type Song = {
   genre: string;
   description: string;
   likes: number;
+  isPublic: boolean;
 };
 
 export type User = {
