@@ -9,21 +9,44 @@ import {
   Shuffle,
   Repeat,
   VolumeX,
+  Heart,
 } from 'lucide-react';
 import Image from 'next/image';
 import { usePlayer } from '@/hooks/use-player';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSongStore } from '@/lib/store';
+import { cn } from '@/lib/utils';
 
 export function Player() {
   const { activeSong, isPlaying, togglePlay, playNext, playPrev } = usePlayer();
+  const { likeSong, songs } = useSongStore();
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(0.5);
   // These would be driven by the audio element's state
   const [progress, setProgress] = useState(30);
   const [duration, setDuration] = useState(240); // Mock duration in seconds
+
+  const currentSong = songs.find(s => s.id === activeSong?.id);
+  const [isLiked, setIsLiked] = useState(false);
+
+  useEffect(() => {
+    // For now, we'll just use a local state to track "liked" status
+    // In a real app, this would be tied to a user's account
+  }, [activeSong]);
+
+
+  const handleLike = () => {
+    if (!currentSong) return;
+    if (!isLiked) {
+        likeSong(currentSong.id);
+    }
+    // Note: In a real app, you'd handle un-liking as well.
+    // For this demo, we'll just toggle the visual state.
+    setIsLiked(!isLiked);
+  };
 
   const songImage = PlaceHolderImages.find((p) => p.id === 'song-cover-1') ?? {
     imageUrl: 'https://picsum.photos/seed/100/64/64',
@@ -49,11 +72,18 @@ export function Player() {
           className="rounded-md"
           data-ai-hint={songImage.imageHint}
         />
-        <div>
-          <h3 className="truncate text-sm font-semibold">{activeSong.title}</h3>
-          <p className="truncate text-xs text-muted-foreground">
-            {activeSong.artist}
-          </p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h3 className="truncate text-sm font-semibold">{activeSong.title}</h3>
+            <p className="truncate text-xs text-muted-foreground">
+              {activeSong.artist}
+            </p>
+          </div>
+           <Button variant="ghost" size="icon" onClick={handleLike}>
+            <Heart
+              className={cn('h-5 w-5', isLiked && 'fill-red-500 text-red-500')}
+            />
+          </Button>
         </div>
       </div>
 
