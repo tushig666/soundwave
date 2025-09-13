@@ -139,7 +139,32 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuItem>
 
-          {user &&
+          {!user ? (
+            <>
+              <SidebarMenuItem>
+                <Link href="/signup">
+                  <SidebarMenuButton
+                    isActive={pathname === '/signup'}
+                    tooltip="Sign Up"
+                  >
+                    <UserPlus />
+                    <span>Sign Up</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <Link href="/login">
+                  <SidebarMenuButton
+                    isActive={pathname === '/login'}
+                    tooltip="Login"
+                  >
+                    <LogIn />
+                    <span>Login</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            </>
+          ) : (
             authenticatedMenuItems.map((item) => (
               <SidebarMenuItem key={item.label}>
                 <Link href={item.href}>
@@ -152,7 +177,7 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
-            ))}
+            )))}
         </SidebarMenu>
 
         {user && (
@@ -227,32 +252,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          {!user ? (
-            <>
-              <SidebarMenuItem>
-                <Link href="/signup">
-                  <SidebarMenuButton
-                    isActive={pathname === '/signup'}
-                    tooltip="Sign Up"
-                  >
-                    <UserPlus />
-                    <span>Sign Up</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <Link href="/login">
-                  <SidebarMenuButton
-                    isActive={pathname === '/login'}
-                    tooltip="Login"
-                  >
-                    <LogIn />
-                    <span>Login</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            </>
-          ) : (
+          {user && (
             <SidebarMenuItem>
               <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
                 <LogOut />
