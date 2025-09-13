@@ -75,7 +75,7 @@ export default function UploadPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="genre">Genre</Label>
-              <Input id="genre" name="genre" placeholder="e.g., Pop, Rock, Lofi" required />
+              <Input id="genre" name="genre" placeholder="e.g., Pop, Rock, Lofi" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
