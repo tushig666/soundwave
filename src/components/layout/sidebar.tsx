@@ -9,6 +9,7 @@ import {
   PlusCircle,
   Heart,
   WandSparkles,
+  UploadCloud,
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -28,6 +29,7 @@ const menuItems = [
   { href: '/search', label: 'Search', icon: Search },
   { href: '/library', label: 'Your Library', icon: Library },
   { href: '/curator', label: 'AI Curator', icon: WandSparkles },
+  { href: '/upload', label: 'Upload', icon: UploadCloud },
 ];
 
 const playlists = [
