@@ -14,6 +14,7 @@ import {
   LogIn,
   LogOut,
   UserPlus,
+  Loader2,
 } from 'lucide-react';
 import {
   SidebarHeader,
@@ -30,11 +31,23 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useSongStore } from '@/lib/store';
+import React, { useEffect, useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-const guestMenuItems = [
-  { href: '/trending', label: 'Trending', icon: TrendingUp },
-  { href: '/search', label: 'Search', icon: Search },
-];
 
 const authenticatedMenuItems = [
   { href: '/library', label: 'Your Library', icon: Library },
@@ -42,18 +55,23 @@ const authenticatedMenuItems = [
   { href: '/profile/me', label: 'My Profile', icon: User },
 ];
 
-const playlists = [
-  { href: '/playlist/liked', label: 'Liked Songs', icon: Heart },
-  { href: '/playlist/1', label: 'Chill Mix', icon: Music },
-  { href: '/playlist/2', label: 'Focus Flow', icon: Music },
-  { href: '/playlist/3', label: 'Workout', icon: Music },
-];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { playlists, fetchPlaylists, createPlaylist } = useSongStore();
+  const [isCreating, setIsCreating] = useState(false);
+  const [newPlaylistName, setNewPlaylistName] = useState('');
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+
+  useEffect(() => {
+    if (user?.uid) {
+      fetchPlaylists(user.uid);
+    }
+  }, [user?.uid, fetchPlaylists]);
+
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -61,16 +79,31 @@ export function AppSidebar() {
     router.push('/login');
   };
 
+  const handleCreatePlaylist = async () => {
+    if (!user || !newPlaylistName.trim()) {
+      toast({ title: 'Error', description: 'Playlist name cannot be empty.', variant: 'destructive' });
+      return;
+    }
+    setIsCreating(true);
+    try {
+      await createPlaylist(newPlaylistName, user.uid);
+      toast({ title: 'Success!', description: `Playlist "${newPlaylistName}" created.` });
+      setNewPlaylistName('');
+      setIsAlertOpen(false);
+    } catch (error: any) {
+      toast({ title: 'Failed to create playlist', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsCreating(false);
+    }
+  }
+
   const isActive = (href: string) => {
     if (href === '/') {
-        // Special case for home, only active when path is exactly "/"
         return pathname === href;
     }
-    // For other links, active if the current path starts with the href
     return pathname.startsWith(href);
   };
   
-  // A more specific active check for the root page to avoid matching all routes
   const isHomeActive = pathname === '/';
 
   return (
@@ -124,21 +157,66 @@ export function AppSidebar() {
 
         {user && (
           <SidebarGroup>
-            <SidebarGroupLabel className="flex items-center justify-between">
-              <span>Playlists</span>
-              <PlusCircle className="h-4 w-4 cursor-pointer hover:text-primary" />
-            </SidebarGroupLabel>
+             <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+              <AlertDialogTrigger asChild>
+                <SidebarGroupLabel className="flex items-center justify-between">
+                  <span>Playlists</span>
+                  <PlusCircle className="h-4 w-4 cursor-pointer hover:text-primary" />
+                </SidebarGroupLabel>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Create New Playlist</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Give your new playlist a name.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="playlist-name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="playlist-name"
+                      value={newPlaylistName}
+                      onChange={(e) => setNewPlaylistName(e.target.value)}
+                      className="col-span-3"
+                      placeholder="My Awesome Mix"
+                    />
+                  </div>
+                </div>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <Button onClick={handleCreatePlaylist} disabled={isCreating}>
+                    {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Create
+                  </Button>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <SidebarMenu>
-              {playlists.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                  <Link href={item.href}>
+              <SidebarMenuItem>
+                  <Link href="/playlist/liked">
                     <SidebarMenuButton
                       size="sm"
-                      isActive={isActive(item.href)}
-                      tooltip={item.label}
+                      isActive={isActive('/playlist/liked')}
+                      tooltip="Liked Songs"
                     >
-                      <item.icon />
-                      <span>{item.label}</span>
+                      <Heart />
+                      <span>Liked Songs</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              {playlists.map((item) => (
+                <SidebarMenuItem key={item.id}>
+                  <Link href={`/playlist/${item.id}`}>
+                    <SidebarMenuButton
+                      size="sm"
+                      isActive={isActive(`/playlist/${item.id}`)}
+                      tooltip={item.name}
+                    >
+                      <Music />
+                      <span>{item.name}</span>
                     </SidebarMenuButton>
                   </Link>
                 </SidebarMenuItem>
@@ -187,3 +265,5 @@ export function AppSidebar() {
     </>
   );
 }
+
+    

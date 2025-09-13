@@ -2,39 +2,39 @@
 'use client';
 
 import { create } from 'zustand';
-import type { Song } from './types';
+import type { Song, Playlist } from './types';
 import { db } from './firebase/client';
-import { collection, getDocs, doc, updateDoc, increment, query, where, orderBy, getDoc, deleteDoc, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, increment, query, where, orderBy, getDoc, deleteDoc, writeBatch, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface SongState {
   songs: Song[];
+  playlists: Playlist[];
   fetchSongs: (userId?: string) => Promise<void>;
   toggleLike: (songId: string, userId: string) => Promise<void>;
   getUserSongs: (userId: string) => Song[];
   getLikedSongs: (userId: string) => Promise<Song[]>;
+  fetchPlaylists: (userId: string) => Promise<void>;
+  createPlaylist: (name: string, ownerId: string) => Promise<void>;
 }
 
 const toggleLikeInDb = async (songId: string, userId: string): Promise<boolean> => {
     const songRef = doc(db, 'songs', songId);
     const userLikeRef = doc(db, `users/${userId}/likes`, songId);
-
     const batch = writeBatch(db);
 
     try {
         const userLikeDoc = await getDoc(userLikeRef);
 
         if (userLikeDoc.exists()) {
-            // User has liked the song, so unlike it
             batch.update(songRef, { likes: increment(-1) });
             batch.delete(userLikeRef);
             await batch.commit();
-            return false; // Liked status is now false
+            return false;
         } else {
-            // User has not liked the song, so like it
             batch.update(songRef, { likes: increment(1) });
-            batch.set(userLikeRef, { songId, likedAt: new Date() });
+            batch.set(userLikeRef, { songId, likedAt: serverTimestamp() });
             await batch.commit();
-            return true; // Liked status is now true
+            return true;
         }
     } catch (error) {
         console.error("Error toggling like in DB:", error);
@@ -42,9 +42,9 @@ const toggleLikeInDb = async (songId: string, userId: string): Promise<boolean> 
     }
 };
 
-
 export const useSongStore = create<SongState>()((set, get) => ({
   songs: [],
+  playlists: [],
   fetchSongs: async (userId) => {
     const songsCollection = collection(db, 'songs');
     const q = query(songsCollection, orderBy('createdAt', 'desc'));
@@ -94,16 +94,39 @@ export const useSongStore = create<SongState>()((set, get) => ({
       return [];
     }
     
-    // We can't use a single `in` query if there are more than 30 liked songs.
-    // This is a simplified approach. For a production app, you might fetch songs in batches.
     const allSongs = get().songs;
-    const likedSongs = allSongs.filter(song => likedSongsIds.has(song.id));
+    const likedSongsInStore = allSongs.filter(song => likedSongsIds.has(song.id));
     
-    // Add likedByUser since we know these are all liked.
-    return likedSongs.map(song => ({ ...song, likedByUser: true }));
+    if (likedSongsInStore.length === likedSongsIds.size) {
+        return likedSongsInStore.map(song => ({ ...song, likedByUser: true }));
+    }
+
+    const songsRef = collection(db, 'songs');
+    const likedSongsQuery = query(songsRef, where('__name__', 'in', Array.from(likedSongsIds)));
+    const songDocs = await getDocs(likedSongsQuery);
+    return songDocs.docs.map(doc => ({ ...doc.data(), id: doc.id, likedByUser: true } as Song));
+  },
+  fetchPlaylists: async (userId: string) => {
+    const playlistsRef = collection(db, 'playlists');
+    const q = query(playlistsRef, where('ownerId', '==', userId), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    const playlists = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Playlist));
+    set({ playlists });
+  },
+  createPlaylist: async (name: string, ownerId: string) => {
+    const newPlaylist = {
+      name,
+      ownerId,
+      songIds: [],
+      createdAt: serverTimestamp(),
+      description: '',
+    };
+    const playlistsRef = collection(db, 'playlists');
+    const docRef = await addDoc(playlistsRef, newPlaylist);
+    set(state => ({
+      playlists: [{ id: docRef.id, ...newPlaylist } as Playlist, ...state.playlists]
+    }));
   },
 }));
 
-// Initial fetch can be triggered in a layout or provider component
-// useSongStore.getState().fetchSongs();
-
+    

@@ -30,4 +30,7 @@ export type Playlist = {
   description: string;
   ownerId: string;
   songIds: string[];
+  createdAt: Timestamp;
 };
+
+    
