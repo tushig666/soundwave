@@ -32,7 +32,6 @@ import { auth } from '@/lib/firebase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const guestMenuItems = [
-  { href: '/', label: 'Home', icon: Home },
   { href: '/trending', label: 'Trending', icon: TrendingUp },
   { href: '/search', label: 'Search', icon: Search },
 ];
@@ -64,13 +63,15 @@ export function AppSidebar() {
 
   const isActive = (href: string) => {
     if (href === '/') {
-      return pathname === href;
+        // Special case for home, only active when path is exactly "/"
+        return pathname === href;
     }
-    if (href === '/profile/me') {
-      return pathname === href;
-    }
+    // For other links, active if the current path starts with the href
     return pathname.startsWith(href);
   };
+  
+  // A more specific active check for the root page to avoid matching all routes
+  const isHomeActive = pathname === '/';
 
   return (
     <>
@@ -82,19 +83,29 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {guestMenuItems.map((item) => (
-            <SidebarMenuItem key={item.label}>
-              <Link href={item.href}>
+           <SidebarMenuItem>
+              <Link href="/trending">
                 <SidebarMenuButton
-                  isActive={isActive(item.href)}
-                  tooltip={item.label}
+                  isActive={pathname.startsWith('/trending') || isHomeActive}
+                  tooltip="Trending"
                 >
-                  <item.icon />
-                  <span>{item.label}</span>
+                  <TrendingUp />
+                  <span>Trending</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
-          ))}
+            <SidebarMenuItem>
+              <Link href="/search">
+                <SidebarMenuButton
+                  isActive={pathname.startsWith('/search')}
+                  tooltip="Search"
+                >
+                  <Search />
+                  <span>Search</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+
           {user &&
             authenticatedMenuItems.map((item) => (
               <SidebarMenuItem key={item.label}>
