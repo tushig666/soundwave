@@ -109,13 +109,14 @@ export default function UploadPage() {
       const title = formData.get('title') as string;
       const genre = formData.get('genre') as string;
       const description = formData.get('description') as string;
-      const timestamp = Date.now();
-
-      // We'll give 50% of the progress to each file
-      const coverPath = `covers/${user.uid}/${timestamp}_${coverFile.name}`;
-      const coverUrl = await uploadFile(coverFile, coverPath, 0, 50);
       
-      const audioPath = `audio/${user.uid}/${timestamp}_${audioFile.name}`;
+      // Use a consistent file name for simplicity, or generate a unique one.
+      // The path must match the Storage Security Rules.
+      const coverPath = `covers/${user.uid}/${coverFile.name}`;
+      const audioPath = `audio/${user.uid}/${audioFile.name}`;
+      
+      // We'll give 50% of the progress to each file
+      const coverUrl = await uploadFile(coverFile, coverPath, 0, 50);
       const audioUrl = await uploadFile(audioFile, audioPath, 50, 50);
 
 
@@ -288,4 +289,3 @@ export default function UploadPage() {
     </AuthRequired>
   );
 }
-
