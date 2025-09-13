@@ -4,7 +4,7 @@
 import { create } from 'zustand';
 import type { Song, Playlist } from './types';
 import { db } from './firebase/client';
-import { collection, getDocs, doc, updateDoc, increment, query, where, orderBy, getDoc, deleteDoc, writeBatch, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, increment, query, where, orderBy, getDoc, deleteDoc, writeBatch, addDoc, serverTimestamp, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 interface SongState {
   songs: Song[];
@@ -15,6 +15,9 @@ interface SongState {
   getLikedSongs: (userId: string) => Promise<Song[]>;
   fetchPlaylists: (userId: string) => Promise<void>;
   createPlaylist: (name: string, ownerId: string) => Promise<void>;
+  getPlaylistById: (playlistId: string) => Promise<Playlist | null>;
+  addSongToPlaylist: (playlistId: string, songId: string) => Promise<void>;
+  removeSongFromPlaylist: (playlistId: string, songId: string) => Promise<void>;
 }
 
 const toggleLikeInDb = async (songId: string, userId: string): Promise<boolean> => {
@@ -94,17 +97,15 @@ export const useSongStore = create<SongState>()((set, get) => ({
       return [];
     }
     
-    const allSongs = get().songs;
-    const likedSongsInStore = allSongs.filter(song => likedSongsIds.has(song.id));
-    
-    if (likedSongsInStore.length === likedSongsIds.size) {
-        return likedSongsInStore.map(song => ({ ...song, likedByUser: true }));
-    }
+    // Use the fetched songs from the store to avoid redundant reads
+    const allSongs = get().songs.length > 0 ? get().songs : (await get().fetchSongs(userId), get().songs);
+    const likedSongs = allSongs
+        .filter(song => likedSongsIds.has(song.id))
+        .map(song => ({ ...song, likedByUser: true }));
 
-    const songsRef = collection(db, 'songs');
-    const likedSongsQuery = query(songsRef, where('__name__', 'in', Array.from(likedSongsIds)));
-    const songDocs = await getDocs(likedSongsQuery);
-    return songDocs.docs.map(doc => ({ ...doc.data(), id: doc.id, likedByUser: true } as Song));
+    // Sort based on the likedAt timestamp implicitly by the order of IDs from the query
+    const sortedLikedSongs = Array.from(likedSongsIds).map(id => likedSongs.find(song => song.id === id)).filter(s => s) as Song[];
+    return sortedLikedSongs;
   },
   fetchPlaylists: async (userId: string) => {
     const playlistsRef = collection(db, 'playlists');
@@ -114,7 +115,7 @@ export const useSongStore = create<SongState>()((set, get) => ({
     set({ playlists });
   },
   createPlaylist: async (name: string, ownerId: string) => {
-    const newPlaylist = {
+    const newPlaylistData = {
       name,
       ownerId,
       songIds: [],
@@ -122,11 +123,51 @@ export const useSongStore = create<SongState>()((set, get) => ({
       description: '',
     };
     const playlistsRef = collection(db, 'playlists');
-    const docRef = await addDoc(playlistsRef, newPlaylist);
+    const docRef = await addDoc(playlistsRef, newPlaylistData);
+    const newPlaylist = { id: docRef.id, ...newPlaylistData } as Playlist;
     set(state => ({
-      playlists: [{ id: docRef.id, ...newPlaylist } as Playlist, ...state.playlists]
+      playlists: [newPlaylist, ...state.playlists]
     }));
   },
-}));
+  getPlaylistById: async (playlistId: string): Promise<Playlist | null> => {
+    const playlistRef = doc(db, 'playlists', playlistId);
+    const playlistSnap = await getDoc(playlistRef);
 
+    if (!playlistSnap.exists()) {
+      return null;
+    }
+
+    const playlistData = { id: playlistSnap.id, ...playlistSnap.data() } as Playlist;
+
+    if (playlistData.songIds && playlistData.songIds.length > 0) {
+      // Fetch all songs if not already in store
+      const allSongs = get().songs.length > 0 ? get().songs : (await get().fetchSongs(), get().songs);
+      const songDetails = playlistData.songIds.map(songId => allSongs.find(s => s.id === songId)).filter(Boolean) as Song[];
+      playlistData.songs = songDetails;
+    } else {
+        playlistData.songs = [];
+    }
+
+    return playlistData;
+  },
+  addSongToPlaylist: async (playlistId: string, songId: string) => {
+    const playlistRef = doc(db, 'playlists', playlistId);
+    await updateDoc(playlistRef, {
+        songIds: arrayUnion(songId)
+    });
+    // Optionally, you can update the local state as well for immediate UI feedback
+    set(state => ({
+        playlists: state.playlists.map(p => p.id === playlistId ? { ...p, songIds: [...p.songIds, songId] } : p)
+    }));
+  },
+  removeSongFromPlaylist: async (playlistId: string, songId: string) => {
+    const playlistRef = doc(db, 'playlists', playlistId);
+    await updateDoc(playlistRef, {
+        songIds: arrayRemove(songId)
+    });
+     set(state => ({
+        playlists: state.playlists.map(p => p.id === playlistId ? { ...p, songIds: p.songIds.filter(id => id !== songId) } : p)
+    }));
+  }
+}));
     

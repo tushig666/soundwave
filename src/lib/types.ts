@@ -31,6 +31,7 @@ export type Playlist = {
   ownerId: string;
   songIds: string[];
   createdAt: Timestamp;
+  songs?: Song[]; // Add optional songs property
 };
 
     
